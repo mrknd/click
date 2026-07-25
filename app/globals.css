@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --terminal-green: #8cff00;
+  --terminal-black: #000000;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--terminal-black);
+  color: var(--terminal-green);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Courier New", Courier, monospace;
+  overflow-x: hidden;
 }
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 1px solid var(--terminal-green);
+  outline-offset: 4px;
+}
+
+::selection {
+  background: var(--terminal-green);
+  color: var(--terminal-black);
+}
+
+/* ------------- Register -------------- */
+
+.terminal-checkbox {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  appearance: none;
+  border: 1px solid #8cff00;
+  background: #000000;
+  cursor: pointer;
+}
+
+.terminal-checkbox:checked {
+  background:
+    linear-gradient(#8cff00, #8cff00) center / 8px 8px no-repeat,
+    #000000;
+}
+
+button:hover {
+  text-shadow: none;
+}
+
+/* ------------- Register -------------- */
