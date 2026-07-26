@@ -267,8 +267,8 @@ input {
 .knight-image {
   position: relative;
   z-index: 2;
-  width: clamp(260px, 42vh, 380px);
-  height: clamp(260px, 42vh, 380px);
+    width: min(80%, 320px);
+    height: auto;
   object-fit: contain;
   image-rendering: pixelated;
   filter:
