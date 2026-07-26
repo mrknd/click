@@ -314,8 +314,8 @@ export default function GamePage() {
   <div className="border-b border-[#8cff00] pb-2 text-[8px]">
     STATUS
   </div>
-
-  <div className="mt-3 space-y-2 text-[8px] sm:text-[9px]">
+<div className="order-2 mt-6 border-t border-[#000]/30 pt-5 sm:order-1">
+  <div className="space-y-2 text-[8px] sm:text-[9px]">
     <StatusRow label="DAY" value="001" />
     <StatusRow label="TOTAL PLAYERS" value="10,000" />
     <StatusRow label="ALIVE PLAYERS" value="10,000" />
@@ -326,8 +326,9 @@ export default function GamePage() {
       value={formatLastClick(lastClick, currentTime)}
     />
   </div>
+</div>
 
-  <div className="mt-5 border-y border-[#8cff00] py-5 text-center">
+  <div className="mt-5 border-b border-[#8cff00] pb-5 text-center">
     <p
       className="
         text-[8px]
@@ -392,41 +393,7 @@ export default function GamePage() {
     </div>
   </div>
 
-  <div
-  className="
-    mt-auto
-    flex
-    items-center
-    justify-between
-    pt-5
-    text-[7px]
-    uppercase
-    tracking-[0.12em]
-    sm:text-[8px]
-  "
->
- <span
-  className="
-    animate-pulse
-    text-[#8cff00]
-    [animation-duration:2s]
-    [text-shadow:0_0_4px_#8cff00,0_0_10px_rgba(140,255,0,.8),0_0_18px_rgba(140,255,0,.45)]
-    [filter:blur(.2px)]
-  "
->
-  ● System Online
-</span>
 
-<span
-  className="
-    text-[#8cff00]
-    [text-shadow:0_0_4px_#8cff00,0_0_10px_rgba(140,255,0,.8),0_0_18px_rgba(140,255,0,.45)]
-    [filter:blur(.2px)]
-  "
->
-  UTC Sync Active
-</span>
-</div>
 </section>
           </div>
 
