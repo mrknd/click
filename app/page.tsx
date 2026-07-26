@@ -99,16 +99,36 @@ export default function LandingPage() {
                         </div>
 
                         <div className="flex min-h-0 flex-1 flex-col justify-center py-4 lg:py-2">
-                            <h1 className="text-center text-3xl font-black tracking-[-0.05em] sm:text-5xl lg:text-6xl">
-                                ONE CLICK
-                            </h1>
+                            <h1
+  data-text="ONE CLICK"
+  className="
+    crt-title
+    text-center
+    text-3xl
+    font-black
+    tracking-[-0.05em]
+    sm:text-5xl
+    lg:text-6xl
+  "
+>
+  ONE CLICK
+</h1>
 
                             <div className="mt-3 flex items-center gap-3">
                                 <div className="h-px flex-1 bg-[#8cff00]" />
 
-                                <p className="text-center text-[7px] uppercase tracking-[0.12em] sm:text-[9px]">
-                                    One action. Every day. No second chance.
-                                </p>
+                                <p
+  className="
+    crt-subtitle
+    text-center
+    text-[7px]
+    uppercase
+    tracking-[0.12em]
+    sm:text-[9px]
+  "
+>
+  One action. Every day. No second chance.
+</p>
 
                                 <div className="h-px flex-1 bg-[#8cff00]" />
                             </div>

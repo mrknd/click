@@ -310,57 +310,124 @@ export default function GamePage() {
               </div>
             </section>
 
-            <section className="border border-[#8cff00] p-4">
-              <div className="border-b border-[#8cff00] pb-2 text-[8px]">
-                STATUS
-              </div>
+            <section className="flex flex-col border border-[#8cff00] p-4">
+  <div className="border-b border-[#8cff00] pb-2 text-[8px]">
+    STATUS
+  </div>
 
-              <div className="mt-3 space-y-2 text-[8px] sm:text-[9px]">
-                <StatusRow label="DAY" value="001" />
+  <div className="mt-3 space-y-2 text-[8px] sm:text-[9px]">
+    <StatusRow label="DAY" value="001" />
+    <StatusRow label="TOTAL PLAYERS" value="10,000" />
+    <StatusRow label="ALIVE PLAYERS" value="10,000" />
+    <StatusRow label="DEAD PLAYERS" value="0" />
 
-                <StatusRow
-                  label="TOTAL PLAYERS"
-                  value="10,000"
-                />
+    <StatusRow
+      label="LAST CLICK"
+      value={formatLastClick(lastClick, currentTime)}
+    />
+  </div>
 
-                <StatusRow
-                  label="ALIVE PLAYERS"
-                  value="10,000"
-                />
+  <div className="mt-5 border-y border-[#8cff00] py-5 text-center">
+    <p
+      className="
+        text-[8px]
+        font-bold
+        uppercase
+        tracking-[0.24em]
+        text-[#8cff00]/70
+        sm:text-[9px]
+      "
+    >
+      Next UTC Reset
+    </p>
 
-                <StatusRow
-                  label="DEAD PLAYERS"
-                  value="0"
-                />
+    <p
+      className="
+        mt-3
+        text-4xl
+        font-black
+        leading-none
+        tracking-[0.08em]
+        text-[#8cff00]
+        sm:text-5xl
+        lg:text-6xl
+      "
+    >
+      {formatTime(timeLeft)}
+    </p>
 
-                <StatusRow
-                  label="LAST CLICK"
-                  value={formatLastClick(
-                    lastClick,
-                    currentTime,
-                  )}
-                />
+    <p
+      className="
+        mt-3
+        text-[7px]
+        uppercase
+        tracking-[0.18em]
+        text-[#8cff00]/50
+        sm:text-[8px]
+      "
+    >
+      00:00 UTC
+    </p>
+  </div>
 
-                <StatusRow
-                  label="NEXT RESET"
-                  value="00:00 UTC"
-                />
+  <div className="mt-5">
+    <div className="mb-2 flex items-center justify-between text-[7px] uppercase tracking-[0.12em] sm:text-[8px]">
+      <span>Cycle Progress</span>
+      <span>{Math.round(progress)}%</span>
+    </div>
 
-                <StatusRow
-                  label="TIME LEFT"
-                  value={formatTime(timeLeft)}
-                />
-              </div>
+    <div className="border border-[#8cff00] p-1">
+      <div
+        className="
+          h-4
+          bg-[#8cff00]
+          transition-[width]
+          duration-1000
+          sm:h-5
+        "
+        style={{
+          width: `${progress}%`,
+        }}
+      />
+    </div>
+  </div>
 
-              <div className="mt-4 border border-[#8cff00] p-1">
-                <div
-                  className="h-3 bg-[#8cff00] transition-[width] duration-1000"
-                  style={{
-                    width: `${progress}%`,
-                  }}
-                />
-              </div>
-            </section>
+  <div
+  className="
+    mt-auto
+    flex
+    items-center
+    justify-between
+    pt-5
+    text-[7px]
+    uppercase
+    tracking-[0.12em]
+    sm:text-[8px]
+  "
+>
+ <span
+  className="
+    animate-pulse
+    text-[#8cff00]
+    [animation-duration:2s]
+    [text-shadow:0_0_4px_#8cff00,0_0_10px_rgba(140,255,0,.8),0_0_18px_rgba(140,255,0,.45)]
+    [filter:blur(.2px)]
+  "
+>
+  ● System Online
+</span>
+
+<span
+  className="
+    text-[#8cff00]
+    [text-shadow:0_0_4px_#8cff00,0_0_10px_rgba(140,255,0,.8),0_0_18px_rgba(140,255,0,.45)]
+    [filter:blur(.2px)]
+  "
+>
+  UTC Sync Active
+</span>
+</div>
+</section>
           </div>
 
           <section className="mt-3 grid gap-2 text-center sm:grid-cols-3">
