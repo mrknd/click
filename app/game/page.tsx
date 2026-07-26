@@ -1,429 +1,791 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const totalPlayers = 1337;
-const deadPlayers = 495;
-const totalDays = 12541;
-const totalClicks = 15872;
-const alivePlayers = 842;
-const prizePool = 45210;
+const INTRO_MESSAGES = [
+  "CONNECTION ESTABLISHED.",
+  "LISTEN CAREFULLY. YOU ONLY GET ONE CHANCE.",
+  "PRESS THE BUTTON ONCE BEFORE EVERY UTC RESET.",
+  "MISS A SINGLE DAY AND YOU ARE ELIMINATED FOREVER.",
+  "NO RETRIES. NO REVIVES. NO EXCEPTIONS.",
+  "WHEN ONLY 50 PLAYERS REMAIN, THE PRIZE POOL IS SPLIT EQUALLY.",
+  "YOUR FIRST DAY STARTS NOW.",
+];
 
-const prizePerPlayer =
-  alivePlayers > 0 ? prizePool / alivePlayers : 0;
+export default function GamePage() {
+  const [username, setUsername] = useState("GUEST");
 
-function padNumber(value: number) {
-  return value.toString().padStart(3, "0");
-}
+  const [showIntro, setShowIntro] = useState(false);
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
-function getTimeUntilUtcReset() {
-  const now = new Date();
+  const [clickedToday, setClickedToday] = useState(false);
+  const [lastClick, setLastClick] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState<number | null>(null);
 
-  const nextReset = new Date(
-    Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate() + 1,
-      0,
-      0,
-      0,
-    ),
-  );
-
-  const difference = Math.max(0, nextReset.getTime() - now.getTime());
-
-  const hours = Math.floor(difference / 3_600_000);
-  const minutes = Math.floor((difference % 3_600_000) / 60_000);
-  const seconds = Math.floor((difference % 60_000) / 1_000);
-
-  return {
-    hours,
-    minutes,
-    seconds,
-    percentage: Math.round((difference / 86_400_000) * 100),
-  };
-}
-
-export default function Home() {
-  const [clicked, setClicked] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(getTimeUntilUtcReset());
+  const typingTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setTimeLeft(getTimeUntilUtcReset());
+    const savedPlayer = localStorage.getItem("one-click-player");
+
+    if (savedPlayer) {
+      try {
+        const player = JSON.parse(savedPlayer);
+
+        if (player.username) {
+          setUsername(player.username);
+        }
+      } catch {
+        setUsername("GUEST");
+      }
+    }
+
+    const savedLastClick = localStorage.getItem("one-click-last-click");
+
+    if (savedLastClick) {
+      const parsedClick = Number(savedLastClick);
+
+      if (!Number.isNaN(parsedClick)) {
+        setLastClick(parsedClick);
+        setClickedToday(isSameUtcDay(parsedClick, Date.now()));
+      }
+    }
+
+    setCurrentTime(Date.now());
+
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+
+      setCurrentTime(now);
+
+      if (lastClick !== null) {
+        setClickedToday(isSameUtcDay(lastClick, now));
+      }
     }, 1000);
 
-    return () => window.clearInterval(interval);
-  }, []);
+    const introSeen = localStorage.getItem("one-click-intro-seen");
 
-  function handleClick() {
-    if (clicked) return;
+    let animationFrameId: number | null = null;
 
-    setClicked(true);
+    if (!introSeen) {
+      animationFrameId = window.requestAnimationFrame(() => {
+        setShowIntro(true);
+      });
+    }
+
+    return () => {
+      window.clearInterval(timer);
+
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [lastClick]);
+
+  useEffect(() => {
+    if (!showIntro) {
+      return;
+    }
+
+    const message = INTRO_MESSAGES[messageIndex];
+
+    if (!message) {
+      return;
+    }
+
+    if (typingTimerRef.current !== null) {
+      window.clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+
+    setDisplayedText("");
+    setIsTyping(true);
+
+    let characterIndex = 0;
+
+    typingTimerRef.current = window.setInterval(() => {
+      characterIndex += 1;
+
+      setDisplayedText(message.slice(0, characterIndex));
+
+      if (characterIndex >= message.length) {
+        if (typingTimerRef.current !== null) {
+          window.clearInterval(typingTimerRef.current);
+          typingTimerRef.current = null;
+        }
+
+        setIsTyping(false);
+      }
+    }, 40);
+
+    return () => {
+      if (typingTimerRef.current !== null) {
+        window.clearInterval(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+    };
+  }, [showIntro, messageIndex]);
+
+  function handlePress() {
+    if (clickedToday) {
+      return;
+    }
+
+    const clickedAt = Date.now();
+
+    setLastClick(clickedAt);
+    setCurrentTime(clickedAt);
+    setClickedToday(true);
+
+    localStorage.setItem("one-click-last-click", clickedAt.toString());
   }
 
-  const formattedTime = [
-    timeLeft.hours,
-    timeLeft.minutes,
-    timeLeft.seconds,
-  ]
-    .map((value) => value.toString().padStart(2, "0"))
-    .join(":");
+  function finishCurrentTyping() {
+    const message = INTRO_MESSAGES[messageIndex];
 
-  const filledBars = Math.max(
-    0,
-    Math.min(20, Math.round(timeLeft.percentage / 5)),
-  );
+    if (!message) {
+      return;
+    }
 
-  const emptyBars = 20 - filledBars;
+    if (typingTimerRef.current !== null) {
+      window.clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+
+    setDisplayedText(message);
+    setIsTyping(false);
+  }
+
+  function handlePreviousMessage() {
+    if (messageIndex === 0) {
+      return;
+    }
+
+    if (typingTimerRef.current !== null) {
+      window.clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+
+    setMessageIndex((currentIndex) => currentIndex - 1);
+  }
+
+  function handleNextMessage() {
+    if (isTyping) {
+      finishCurrentTyping();
+      return;
+    }
+
+    if (messageIndex < INTRO_MESSAGES.length - 1) {
+      setMessageIndex((currentIndex) => currentIndex + 1);
+    }
+  }
+
+  function closeIntro() {
+    if (typingTimerRef.current !== null) {
+      window.clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+
+    localStorage.setItem("one-click-intro-seen", "true");
+
+    setShowIntro(false);
+  }
+
+  const timeLeft = currentTime
+    ? getTimeUntilUtcReset(currentTime)
+    : 0;
+
+  const progress = currentTime
+    ? Math.max(
+        0,
+        Math.min(100, (timeLeft / 86_400_000) * 100),
+      )
+    : 100;
+
+  const isLastIntroMessage =
+    messageIndex === INTRO_MESSAGES.length - 1;
 
   return (
-    <main
-      className="
-        min-h-screen
-        bg-black
-        p-2
-        text-[#8cff00]
-        lg:h-screen
-        lg:min-h-0
-        lg:overflow-hidden
-      "
-    >
-      <div
-        className="
-          mx-auto
-          flex
-          min-h-[calc(100vh-16px)]
-          max-w-[1800px]
-          flex-col
-          border
-          border-[#8cff00]
-          p-2
-          lg:h-[calc(100vh-16px)]
-          lg:min-h-0
-          lg:gap-2
-          lg:overflow-hidden
-        "
-      >
-        <header className="flex shrink-0 items-center justify-between px-1 text-[9px] sm:text-[10px] lg:text-xs">
+    <main className="min-h-screen bg-black p-2 text-[#8cff00] lg:h-screen lg:overflow-hidden">
+      <div className="mx-auto flex min-h-[calc(100vh-16px)] max-w-[1500px] flex-col border border-[#8cff00] p-2 lg:h-[calc(100vh-16px)]">
+        <header className="flex items-center justify-between border-b border-[#8cff00] pb-2 text-[8px] sm:text-[10px]">
           <span>ONE CLICK v1.0</span>
-          <span>USER: GUEST</span>
+
+          <span>USER: {username.toUpperCase()}</span>
         </header>
 
-        <section
-          className="
-            mt-2
-            shrink-0
-            border
-            border-[#8cff00]
-            px-3
-            py-2
-            lg:mt-0
-            lg:h-[16%]
-            lg:min-h-[105px]
-          "
-        >
-
-
-          <div className="flex h-[calc(100%-20px)] flex-col items-center justify-center">
+        <section className="flex flex-1 flex-col py-3 lg:min-h-0">
+          <div className="text-center">
             <h1
+              data-text="ONE CLICK"
               className="
-                whitespace-nowrap
-                text-center
-                text-2xl
+                crt-title
+                text-3xl
                 font-black
-                tracking-[-0.04em]
-                sm:text-3xl
-                md:text-4xl
-                lg:text-4xl
-                xl:text-5xl
+                tracking-[-0.05em]
+                sm:text-5xl
               "
             >
               ONE CLICK
             </h1>
 
-            <div className="mt-2 flex w-full items-center gap-3">
-              <div className="h-px flex-1 bg-[#8cff00]" />
-
-              <p className="whitespace-nowrap text-center text-[7px] uppercase tracking-[0.12em] sm:text-[8px] lg:text-[9px]">
-                One action. Every day. No second chance.
-              </p>
-
-              <div className="h-px flex-1 bg-[#8cff00]" />
-            </div>
+            <p
+              className="
+                crt-subtitle
+                mt-2
+                text-[8px]
+                uppercase
+                tracking-[0.12em]
+                sm:text-[9px]
+              "
+            >
+              One action. Every day. No second chance.
+            </p>
           </div>
-        </section>
 
-        <div
-          className="
-            mt-2
-            grid
-            gap-2
-            lg:mt-0
-            lg:min-h-0
-            lg:flex-1
-            lg:grid-cols-[1.45fr_0.95fr]
-            lg:grid-rows-[minmax(180px,1.55fr)_minmax(135px,0.85fr)]
-          "
-        >
-          <section className="flex min-h-[390px] flex-col border border-[#8cff00] p-3 lg:min-h-0">
-            <h2 className="shrink-0 text-center text-base sm:text-lg lg:text-xl">
-              TODAY&apos;S CLICK
-            </h2>
+          <div className="mt-3 grid flex-1 gap-3 lg:min-h-0 lg:grid-cols-[1.1fr_0.9fr]">
+            <section className="flex min-h-[260px] flex-col border border-[#8cff00] p-4">
+              <div className="border-b border-[#8cff00] pb-2 text-[8px]">
+                TODAY&apos;S CLICK
+              </div>
 
-            <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-5 lg:py-2">
-              {!clicked ? (
+              <div className="flex flex-1 items-center justify-center">
                 <button
                   type="button"
-                  onClick={handleClick}
+                  onClick={handlePress}
+                  disabled={clickedToday}
                   className="
+                    group
                     flex
-                    h-[175px]
+                    h-[150px]
                     w-full
-                    max-w-[730px]
+                    max-w-[390px]
                     flex-col
                     items-center
                     justify-center
                     border
                     border-[#8cff00]
                     bg-black
-                    px-4
-                    text-center
+                    text-[#8cff00]
                     transition-colors
-                    hover:bg-[#071500]
-                    active:translate-x-[2px]
-                    active:translate-y-[2px]
-                    lg:h-[125px]
+                    hover:bg-[#8cff00]
+                    disabled:cursor-default
+                    disabled:bg-black
+                    lg:h-[115px]
                   "
                 >
-                  <span className="whitespace-nowrap text-3xl font-black tracking-[0.05em] sm:text-4xl lg:text-4xl">
-                    PRESS
+                  <span
+                    className="
+                      text-2xl
+                      font-black
+                      tracking-[0.12em]
+                      text-[#8cff00]
+                      group-hover:text-black
+                      group-disabled:text-[#8cff00]
+                      sm:text-3xl
+                    "
+                  >
+                    {clickedToday
+                      ? "CLICK SAVED"
+                      : "PRESS"}
                   </span>
 
-                  <span className="mt-3 text-[8px] tracking-[0.08em] sm:text-[9px] lg:text-[10px]">
-                    CLICK TO SURVIVE
+                  <span
+                    className="
+                      mt-2
+                      text-[8px]
+                      tracking-[0.12em]
+                      text-[#8cff00]
+                      group-hover:text-black
+                      group-disabled:text-[#8cff00]
+                      sm:text-[9px]
+                    "
+                  >
+                    {clickedToday
+                      ? "SEE YOU TOMORROW"
+                      : "CLICK TO SURVIVE"}
                   </span>
                 </button>
-              ) : (
+              </div>
+            </section>
+
+            <section className="border border-[#8cff00] p-4">
+              <div className="border-b border-[#8cff00] pb-2 text-[8px]">
+                STATUS
+              </div>
+
+              <div className="mt-3 space-y-2 text-[8px] sm:text-[9px]">
+                <StatusRow label="DAY" value="001" />
+
+                <StatusRow
+                  label="TOTAL PLAYERS"
+                  value="10,000"
+                />
+
+                <StatusRow
+                  label="ALIVE PLAYERS"
+                  value="10,000"
+                />
+
+                <StatusRow
+                  label="DEAD PLAYERS"
+                  value="0"
+                />
+
+                <StatusRow
+                  label="LAST CLICK"
+                  value={formatLastClick(
+                    lastClick,
+                    currentTime,
+                  )}
+                />
+
+                <StatusRow
+                  label="NEXT RESET"
+                  value="00:00 UTC"
+                />
+
+                <StatusRow
+                  label="TIME LEFT"
+                  value={formatTime(timeLeft)}
+                />
+              </div>
+
+              <div className="mt-4 border border-[#8cff00] p-1">
                 <div
-                  className="
-                    flex
-                    h-[175px]
-                    w-full
-                    max-w-[730px]
-                    flex-col
-                    items-center
-                    justify-center
-                    border
-                    border-[#8cff00]
-                    px-4
-                    text-center
-                    lg:h-[125px]
-                  "
-                >
-                  <p className="whitespace-nowrap text-2xl font-black tracking-[0.04em] sm:text-3xl lg:text-3xl">
-                    CLICK SAVED
-                  </p>
-
-                  <p className="mt-3 text-[8px] tracking-[0.08em] sm:text-[9px] lg:text-[10px]">
-                    SEE YOU TOMORROW
-                  </p>
-                </div>
-              )}
-
-              <p className="mt-4 text-center text-[8px] sm:text-[9px] lg:text-[10px]">
-                ( you can click only once per day )
-              </p>
-            </div>
-          </section>
-
-          <aside className="flex min-h-[390px] flex-col border border-[#8cff00] p-3 lg:min-h-0">
-            <h2 className="shrink-0 text-center text-base sm:text-lg lg:text-xl">
-              STATUS
-            </h2>
-
-            <div className="mt-3 min-h-0 flex-1 border-t border-dashed border-[#8cff00] pt-3">
-              <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 text-[8px] sm:text-[9px] lg:text-[10px]">
-                <span>DAY</span>
-                <span>{padNumber(1)}</span>
-
-                <span>TOTAL PLAYERS</span>
-                <span>{totalPlayers.toLocaleString("en-US")}</span>
-
-                <span>ALIVE PLAYERS</span>
-                <span>{alivePlayers.toLocaleString("en-US")}</span>
-
-                <span>DEAD PLAYERS</span>
-                <span>{deadPlayers.toLocaleString("en-US")}</span>
-
-                <span>LAST CLICK</span>
-                <span>{clicked ? "SAVED" : "--:--"}</span>
+                  className="h-3 bg-[#8cff00] transition-[width] duration-1000"
+                  style={{
+                    width: `${progress}%`,
+                  }}
+                />
               </div>
-
-              <div className="mt-3 border-t border-dashed border-[#8cff00] pt-2 text-center">
-                <p className="text-left text-[8px] sm:text-[9px] lg:text-[10px]">
-                  NEXT RESET
-                </p>
-
-                <p className="mt-1 text-lg font-bold sm:text-xl lg:text-xl">
-                  {formattedTime}
-                </p>
-              </div>
-
-              <div className="mt-3">
-                <div className="flex justify-between text-[7px] sm:text-[8px] lg:text-[9px]">
-                  <span>TIME LEFT</span>
-                  <span>{timeLeft.percentage}%</span>
-                </div>
-
-                <div className="mt-1 overflow-hidden border border-[#8cff00] p-1 text-[8px] leading-none tracking-[-2px]">
-                  <span>{"█".repeat(filledBars)}</span>
-                  <span className="opacity-35">
-                    {"░".repeat(emptyBars)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          <section className="border border-[#8cff00] p-3 lg:col-span-2 lg:min-h-0">
-            <SectionTitle>STATS</SectionTitle>
-
-            <div className="mt-3 grid gap-4 text-center sm:grid-cols-3 lg:h-[calc(100%-28px)]">
-  <StatCard
-    code="[A]"
-    label="ALIVE PLAYERS"
-    value={alivePlayers.toLocaleString("en-US")}
-    footer="STILL IN THE GAME"
-  />
-
-  <StatCard
-    code="[$]"
-    label="PRIZE POOL"
-    value={`$${prizePool.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`}
-    footer="CURRENT TOTAL"
-  />
-
-  <StatCard
-    code="[$/P]"
-    label="PRIZE PER PLAYER"
-    value={`$${prizePerPlayer.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`}
-    footer="IF SPLIT NOW"
-  />
-</div>
-          </section>
-        </div>
-
-        <section
-          className="
-            mt-2
-            shrink-0
-            border
-            border-[#8cff00]
-            p-3
-            lg:mt-0
-            lg:h-[13%]
-            lg:min-h-[88px]
-          "
-        >
-          <SectionTitle>RULES</SectionTitle>
-
-          <div
-            className="
-              mt-2
-              grid
-              gap-1
-              text-[8px]
-              leading-4
-              sm:text-[9px]
-              lg:grid-cols-2
-              lg:gap-x-8
-            "
-          >
-            <p>&gt; Click the button once before the UTC reset.</p>
-            <p>&gt; Miss one day — your run ends forever.</p>
-            <p>&gt; Every click is permanent and cannot be undone.</p>
-            <p>&gt; No retries, revives or second chances.</p>
+            </section>
           </div>
 
-          <div className="mt-2 flex items-center justify-between border-t border-dashed border-[#8cff00] pt-1 text-[6px] uppercase tracking-[0.08em] sm:text-[7px] lg:text-[8px]">
-            <span>Protocol: Daily Survival</span>
-            <span>System Law: Absolute</span>
-          </div>
+          <section className="mt-3 grid gap-2 text-center sm:grid-cols-3">
+            <StatCard
+              label="ALIVE PLAYERS"
+              value="10,000"
+            />
+
+            <StatCard
+              label="PRIZE POOL"
+              value="$50,000"
+            />
+
+            <StatCard
+              label="PRIZE PER PLAYER"
+              value="$1,000"
+            />
+          </section>
         </section>
       </div>
+
+      {showIntro && (
+        <div
+          className="
+            fixed
+            inset-0
+            z-50
+            flex
+            items-center
+            justify-center
+            bg-black/90
+            px-3
+            py-4
+            backdrop-blur-[2px]
+            sm:px-4
+          "
+        >
+          <div
+            className="
+              relative
+              w-full
+              max-w-3xl
+              border
+              border-[#8cff00]
+              bg-black
+              p-4
+              text-[#8cff00]
+              shadow-[0_0_15px_rgba(140,255,0,0.35),inset_0_0_25px_rgba(140,255,0,0.04)]
+              sm:p-8
+            "
+          >
+            <div
+              className="
+                mb-5
+                flex
+                items-center
+                justify-between
+                gap-3
+                border-b
+                border-[#8cff00]/50
+                pb-3
+                text-[7px]
+                uppercase
+                tracking-[0.12em]
+                sm:mb-6
+                sm:text-[10px]
+                sm:tracking-[0.16em]
+              "
+            >
+              <span>ONE CLICK SYSTEM</span>
+
+              <span className="animate-pulse text-right">
+                ● CONNECTION ACTIVE
+              </span>
+            </div>
+
+            <div
+              className="
+                flex
+                min-h-[190px]
+                items-center
+                sm:min-h-[230px]
+              "
+            >
+              <p
+  className="
+    break-words
+    text-[13px]
+    font-bold
+    uppercase
+    leading-6
+    tracking-[0.04em]
+    text-[#8cff00]
+    [text-shadow:0_0_2px_rgba(140,255,0,.35)]
+    sm:text-lg
+    sm:leading-9
+    sm:tracking-[0.08em]
+  "
+>
+                <span aria-hidden="true">
+                  &gt;&nbsp;
+                </span>
+
+                {displayedText}
+
+                <span
+                  className="
+                    ml-1
+                    inline-block
+                    h-[1em]
+                    w-[7px]
+                    animate-pulse
+                    bg-[#8cff00]
+                    align-middle
+                  "
+                />
+              </p>
+            </div>
+
+            <div
+              className="
+                mb-4
+                text-center
+                text-[8px]
+                uppercase
+                tracking-[0.18em]
+                text-[#8cff00]/70
+                sm:text-[9px]
+              "
+            >
+              Message {messageIndex + 1} /{" "}
+              {INTRO_MESSAGES.length}
+            </div>
+
+            <div
+  className="
+    flex
+    flex-col
+    gap-3
+    border-t
+    border-[#8cff00]/50
+    pt-4
+    sm:grid
+    sm:grid-cols-[1fr_auto_1fr]
+    sm:items-center
+    sm:gap-3
+  "
+>
+  <button
+    type="button"
+    onClick={handlePreviousMessage}
+    disabled={messageIndex === 0}
+    className="
+      group
+      flex
+      min-h-11
+      w-full
+      items-center
+      justify-center
+      border
+      border-[#8cff00]
+      px-3
+      text-[9px]
+      font-bold
+      uppercase
+      tracking-[0.04em]
+      text-[#8cff00]
+      transition-colors
+      hover:bg-[#8cff00]
+      disabled:cursor-not-allowed
+      disabled:border-[#8cff00]/25
+      disabled:text-[#8cff00]/25
+      disabled:hover:bg-transparent
+      sm:w-auto
+      sm:justify-self-start
+      sm:px-5
+      sm:text-[10px]
+      sm:tracking-[0.08em]
+    "
+  >
+    <span
+      className="
+        whitespace-nowrap
+        group-hover:text-black
+        group-disabled:text-[#8cff00]/25
+      "
+    >
+      ◀ Previous
+    </span>
+  </button>
+
+  <span
+    className="
+      hidden
+      text-[7px]
+      uppercase
+      tracking-[0.12em]
+      text-[#8cff00]/50
+      sm:block
+    "
+  >
+    Manual navigation
+  </span>
+
+  {!isLastIntroMessage ? (
+    <button
+      type="button"
+      onClick={handleNextMessage}
+      className="
+        group
+        flex
+        min-h-11
+        w-full
+        items-center
+        justify-center
+        border
+        border-[#8cff00]
+        px-3
+        text-[9px]
+        font-bold
+        uppercase
+        tracking-[0.04em]
+        text-[#8cff00]
+        transition-colors
+        hover:bg-[#8cff00]
+        sm:w-auto
+        sm:justify-self-end
+        sm:px-5
+        sm:text-[10px]
+        sm:tracking-[0.08em]
+      "
+    >
+      <span className="group-hover:text-black">
+  Next ▶
+</span>
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={isTyping ? finishCurrentTyping : closeIntro}
+      className="
+        group
+        flex
+        min-h-11
+        w-full
+        items-center
+        justify-center
+        border
+        border-[#8cff00]
+        px-3
+        text-[9px]
+        font-bold
+        uppercase
+        tracking-[0.04em]
+        text-[#8cff00]
+        transition-colors
+        hover:bg-[#8cff00]
+        sm:w-auto
+        sm:justify-self-end
+        sm:px-5
+        sm:text-[10px]
+        sm:tracking-[0.08em]
+      "
+    >
+      <span className="whitespace-nowrap group-hover:text-black">
+        {isTyping ? "Show text" : "[ Understood ]"}
+      </span>
+    </button>
+  )}
+</div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
 
-type SectionTitleProps = {
-  children: React.ReactNode;
+type StatusRowProps = {
+  label: string;
+  value: string;
 };
 
-function SectionTitle({ children }: SectionTitleProps) {
+function StatusRow({
+  label,
+  value,
+}: StatusRowProps) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="h-px flex-1 bg-[#8cff00]" />
+    <div className="flex items-center justify-between border-b border-[#8cff00]/30 pb-2">
+      <span>{label}</span>
 
-      <h2 className="text-sm sm:text-base lg:text-lg">
-        {children}
-      </h2>
-
-      <div className="h-px flex-1 bg-[#8cff00]" />
+      <span className="font-black">
+        {value}
+      </span>
     </div>
   );
 }
 
 type StatCardProps = {
-  code: string;
   label: string;
   value: string;
-  footer: string;
 };
 
 function StatCard({
-  code,
   label,
   value,
-  footer,
 }: StatCardProps) {
   return (
-    <article
-      className="
-        flex
-        flex-col
-        items-center
-        justify-center
-        border-b
-        border-[#8cff00]
-        pb-3
-        sm:border-b-0
-        sm:border-r
-        sm:pb-0
-        sm:last:border-r-0
-      "
-    >
-      <p className="text-[8px] sm:text-[9px] lg:text-[10px]">
-        {code}
-      </p>
-
-      <p className="mt-1 text-[7px] sm:text-[8px] lg:text-[9px]">
+    <div className="border border-[#8cff00] p-3">
+      <p className="text-[7px] sm:text-[8px]">
         {label}
       </p>
 
-      <p className="mt-1 text-xl font-black sm:text-2xl lg:text-2xl">
+      <p className="mt-1 text-base font-black sm:text-lg">
         {value}
       </p>
-
-      <p className="mt-1 text-[6px] sm:text-[7px] lg:text-[8px]">
-        {footer}
-      </p>
-    </article>
+    </div>
   );
+}
+
+function isSameUtcDay(
+  firstTimestamp: number,
+  secondTimestamp: number,
+) {
+  const first = new Date(firstTimestamp);
+  const second = new Date(secondTimestamp);
+
+  return (
+    first.getUTCFullYear() ===
+      second.getUTCFullYear() &&
+    first.getUTCMonth() ===
+      second.getUTCMonth() &&
+    first.getUTCDate() ===
+      second.getUTCDate()
+  );
+}
+
+function getTimeUntilUtcReset(
+  timestamp: number,
+) {
+  const now = new Date(timestamp);
+
+  const nextReset = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+    0,
+    0,
+    0,
+    0,
+  );
+
+  return Math.max(
+    0,
+    nextReset - timestamp,
+  );
+}
+
+function formatTime(milliseconds: number) {
+  const totalSeconds = Math.floor(
+    milliseconds / 1000,
+  );
+
+  const hours = Math.floor(
+    totalSeconds / 3600,
+  );
+
+  const minutes = Math.floor(
+    (totalSeconds % 3600) / 60,
+  );
+
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds]
+    .map((value) =>
+      value.toString().padStart(2, "0"),
+    )
+    .join(":");
+}
+
+function formatLastClick(
+  timestamp: number | null,
+  currentTime: number | null,
+) {
+  if (!timestamp || !currentTime) {
+    return "NEVER";
+  }
+
+  const difference = Math.max(
+    0,
+    currentTime - timestamp,
+  );
+
+  const seconds = Math.floor(
+    difference / 1000,
+  );
+
+  const minutes = Math.floor(
+    seconds / 60,
+  );
+
+  const hours = Math.floor(
+    minutes / 60,
+  );
+
+  if (seconds < 10) {
+    return "JUST NOW";
+  }
+
+  if (minutes < 1) {
+    return `${seconds} SEC AGO`;
+  }
+
+  if (minutes < 60) {
+    return `${minutes} MIN AGO`;
+  }
+
+  if (hours < 24) {
+    return `${hours} HOUR${
+      hours === 1 ? "" : "S"
+    } AGO`;
+  }
+
+  const days = Math.floor(hours / 24);
+
+  return `${days} DAY${
+    days === 1 ? "" : "S"
+  } AGO`;
 }
