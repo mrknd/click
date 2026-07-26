@@ -84,15 +84,15 @@ export default function LandingPage() {
 
     return (
         <main className="min-h-screen bg-black p-2 text-[#8cff00] lg:h-screen lg:overflow-hidden">
-            <div className="mx-auto flex min-h-[calc(100vh-16px)] max-w-[1500px] flex-col border border-[#8cff00] p-2 lg:h-[calc(100vh-16px)] lg:min-h-0">
+           <div className="mx-auto flex min-h-[calc(100vh-16px)] w-full min-w-0 max-w-[1500px] flex-col overflow-hidden border border-[#8cff00] p-2 lg:h-[calc(100vh-16px)] lg:min-h-0">
                 <header className="flex shrink-0 items-center justify-between text-[8px] sm:text-[10px]">
                     <span>ONE CLICK v1.0</span>
                     <span>ACCESS: PUBLIC</span>
                 </header>
 
-                <div className="mt-2 grid flex-1 gap-2 lg:min-h-0 lg:grid-cols-[1.15fr_0.85fr]">
+               <div className="mt-2 grid min-w-0 flex-1 gap-2 lg:min-h-0 lg:grid-cols-[1.15fr_0.85fr]">
                     {/* LEFT SIDE */}
-                    <section className="flex min-h-0 flex-col border border-[#8cff00] p-4 lg:p-5">
+                   <section className="flex min-h-0 min-w-0 flex-col overflow-hidden border border-[#8cff00] p-4 lg:p-5">
                         <div className="flex shrink-0 items-center justify-between border-b border-[#8cff00] pb-2 text-[7px] sm:text-[9px]">
                             <span>SYSTEM ONLINE</span>
                             <span>REGISTRATION OPEN</span>
@@ -138,7 +138,7 @@ export default function LandingPage() {
                                     GAME PROTOCOL
                                 </div>
 
-                                <div className="space-y-2 p-3 text-[8px] leading-4 sm:text-[10px] sm:leading-5">
+                                <div className="min-w-0 space-y-2 overflow-hidden p-3 text-[8px] leading-4 sm:text-[10px] sm:leading-5">
                                     <p>&gt; REGISTER YOUR PLAYER ACCOUNT.</p>
 
                                     <p>
@@ -185,7 +185,7 @@ export default function LandingPage() {
                     </section>
 
                     {/* REGISTRATION */}
-                    <section className="flex min-h-0 flex-col border border-[#8cff00] p-4 lg:p-5">
+                    <section className="flex min-h-0 min-w-0 flex-col overflow-hidden border border-[#8cff00] p-4 lg:p-5">
                         <div className="flex shrink-0 items-center gap-3">
                             <div className="h-px flex-1 bg-[#8cff00]" />
 
@@ -286,40 +286,52 @@ export default function LandingPage() {
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="
-                  group
-                  mt-3
-                  flex
-                  min-h-[68px]
-                  w-full
-                  items-center
-                  justify-center
-                  border
-                  border-[#8cff00]
-                  bg-black
-                  px-4
-                  text-center
-                  text-base
-                  font-black
-                  tracking-[0.08em]
-                  text-[#8cff00]
-                  transition-colors
-                  hover:bg-[#8cff00]
-                  hover:text-black
-                  disabled:cursor-not-allowed
-                  disabled:opacity-50
-                  sm:text-lg
-                "
-                            >
-                                <span className="text-current group-hover:text-black">
-                                    {isSubmitting
-                                        ? "PROCESSING..."
-                                        : "[ REGISTER & PAY $5 ]"}
-                                </span>
-                            </button>
+                           <button
+  type="submit"
+  disabled={isSubmitting}
+  className="
+    group
+    mt-3
+    flex
+    min-h-[62px]
+    w-full
+    min-w-0
+    items-center
+    justify-center
+    overflow-hidden
+    border
+    border-[#8cff00]
+    bg-black
+    px-1
+    text-center
+    text-[11px]
+    font-black
+    tracking-[0.01em]
+    text-[#8cff00]
+    transition-colors
+    hover:bg-[#8cff00]
+    hover:text-black
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+    min-[360px]:text-[12px]
+    sm:min-h-[68px]
+    sm:px-4
+    sm:text-base
+    sm:tracking-[0.06em]
+    lg:text-lg
+  "
+>
+  <span className="block max-w-full whitespace-nowrap text-current group-hover:text-black">
+    {isSubmitting ? (
+      "PROCESSING..."
+    ) : (
+      <>
+        <span className="sm:hidden">[ REGISTER & PAY ]</span>
+        <span className="hidden sm:inline">[ REGISTER & PAY $5 ]</span>
+      </>
+    )}
+  </span>
+</button>
 
                             <p className="mt-2 text-center text-[6px] leading-3 opacity-80 sm:text-[7px]">
                                 BY CONTINUING, YOU CONFIRM THAT YOU ARE ELIGIBLE
