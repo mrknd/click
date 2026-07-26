@@ -133,13 +133,11 @@ export default function GamePage() {
               />
 
               <p className="pool-value">
-                ${formatCompactMoney(prizePool)}
+                {formatCompactMoney(prizePool)}
               </p>
             </div>
 
-            <p className="pool-caption">
-              LAST {WINNERS_COUNT} SURVIVORS SPLIT THE POOL
-            </p>
+ 
 
             <div className="players-row">
               <div className="player-counter player-counter-alive">
@@ -194,28 +192,33 @@ export default function GamePage() {
               PLAYER: {username.toUpperCase()}
             </p>
 
-            <div className="knight-stage">
-              <div
-                aria-hidden="true"
-                className="knight-glow"
-              />
+           <div className="knight-stage">
+  <div
+    aria-hidden="true"
+    className="scene-background"
+  />
 
-              <img
-                src={
-                  clickedToday
-                    ? "/game/knight-saved.png"
-                    : "/game/knight-idle.png"
-                }
-                alt={
-                  clickedToday
-                    ? "Knight survived today"
-                    : "Knight waiting for today's click"
-                }
-                width={96}
-                height={96}
-                className="knight-image"
-              />
-            </div>
+  <div
+    aria-hidden="true"
+    className="knight-glow"
+  />
+
+  <img
+    src={
+      clickedToday
+        ? "/game/knight-saved.png"
+        : "/game/knight-idle.png"
+    }
+    alt={
+      clickedToday
+        ? "Knight survived today"
+        : "Knight waiting for today's click"
+    }
+    width={96}
+    height={96}
+    className="knight-image"
+  />
+</div>
 
             <button
               type="button"
