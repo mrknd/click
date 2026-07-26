@@ -267,8 +267,8 @@ input {
 .knight-image {
   position: relative;
   z-index: 2;
-    width: min(80%, 320px);
-    height: auto;
+  width: clamp(260px, 42vh, 380px);
+  height: clamp(260px, 42vh, 380px);
   object-fit: contain;
   image-rendering: pixelated;
   filter:
@@ -534,8 +534,8 @@ input {
   }
 
   .knight-image {
-    width: 140px;
-    height: 140px;
+    width: 540px;
+    height: 540px;
   }
 
   .survive-button {
