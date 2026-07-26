@@ -204,20 +204,10 @@ export default function GamePage() {
   />
 
   <img
-    src={
-      clickedToday
-        ? "/game/knight-saved.png"
-        : "/game/knight-idle.png"
-    }
-    alt={
-      clickedToday
-        ? "Knight survived today"
-        : "Knight waiting for today's click"
-    }
-    width={96}
-    height={96}
-    className="knight-image"
-  />
+  src="/game/knight-idle.gif"
+  alt="Knight animation"
+  className="knight-image"
+/>
 </div>
 
             <button
