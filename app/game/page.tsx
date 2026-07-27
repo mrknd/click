@@ -245,7 +245,7 @@ export default function GamePage() {
   />
 
   <img
-  src="/game/1.gif"
+  src="/game/0727.gif"
   alt="Knight animation"
   className="knight-image"
 />
