@@ -13,6 +13,14 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isPaying, setIsPaying] = useState(false);
 
+  function handleSocialLogin(
+  provider: "google" | "telegram" | "discord",
+) {
+  setError(
+    `${provider.toUpperCase()} LOGIN WILL BE CONNECTED LATER`,
+  );
+}
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -73,11 +81,11 @@ export default function RegisterPage() {
 
           <section className="register-top">
             <p className="register-kicker">
-              ONE CLICK
+              ENTER THE GAME
             </p>
 
             <h1 className="register-title">
-              ENTER THE GAME
+              ONE CLICK
             </h1>
 
             <p className="register-subtitle">
@@ -126,7 +134,86 @@ export default function RegisterPage() {
                   <span>SPLIT THE FINAL POOL</span>
                 </div>
               </div>
+<div className="social-login">
+  <p className="social-login-title">
+    QUICK ENTRY
+  </p>
 
+  <div className="social-login-buttons">
+    <button
+      type="button"
+      className="social-button"
+      onClick={() => handleSocialLogin("google")}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className="social-icon"
+      >
+        <path
+          fill="currentColor"
+          d="M21.35 12.2c0-.68-.06-1.18-.19-1.7H12v3.09h5.38a4.6 4.6 0 0 1-2 3.02l-.02.1 2.9 2.25.2.02c1.86-1.72 2.9-4.25 2.9-6.78Z"
+        />
+        <path
+          fill="currentColor"
+          d="M12 21.75c2.64 0 4.86-.87 6.48-2.77l-3.08-2.37c-.82.55-1.9.94-3.4.94a5.9 5.9 0 0 1-5.57-4.08l-.1.01-3.02 2.34-.04.09A9.78 9.78 0 0 0 12 21.75Z"
+        />
+        <path
+          fill="currentColor"
+          d="M6.43 13.47A6.04 6.04 0 0 1 6.1 11.5c0-.69.12-1.35.32-1.97l-.01-.13-3.05-2.37-.1.05A9.73 9.73 0 0 0 2.22 11.5c0 1.59.38 3.1 1.05 4.42l3.16-2.45Z"
+        />
+        <path
+          fill="currentColor"
+          d="M12 5.45c1.84 0 3.08.8 3.8 1.46l2.74-2.68C16.86 2.66 14.64 1.25 12 1.25a9.78 9.78 0 0 0-8.73 5.83l3.15 2.45A5.93 5.93 0 0 1 12 5.45Z"
+        />
+      </svg>
+
+      <span>GOOGLE</span>
+    </button>
+
+    <button
+      type="button"
+      className="social-button"
+      onClick={() => handleSocialLogin("telegram")}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className="social-icon"
+      >
+        <path
+          fill="currentColor"
+          d="M21.7 3.4 18.5 20c-.24 1.17-.88 1.46-1.78.91l-4.87-3.59-2.35 2.26c-.26.26-.48.48-.98.48l.35-4.96 9.03-8.16c.39-.35-.09-.55-.61-.2L6.13 13.77 1.32 12.27c-1.05-.33-1.07-1.05.22-1.55L20.37 3.46c.87-.32 1.63.2 1.33-.06Z"
+        />
+      </svg>
+
+      <span>TELEGRAM</span>
+    </button>
+
+    <button
+      type="button"
+      className="social-button"
+      onClick={() => handleSocialLogin("discord")}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className="social-icon"
+      >
+        <path
+          fill="currentColor"
+          d="M19.5 5.34A17.2 17.2 0 0 0 15.36 4l-.51 1.05a15.1 15.1 0 0 0-5.68 0L8.64 4A17.5 17.5 0 0 0 4.5 5.35C1.88 9.2 1.17 12.96 1.53 16.67a16.7 16.7 0 0 0 5.08 2.57l1.23-1.68a10.7 10.7 0 0 1-1.93-.93l.47-.36a12.3 12.3 0 0 0 11.24 0l.48.36c-.62.37-1.27.69-1.94.93l1.23 1.68a16.6 16.6 0 0 0 5.08-2.57c.42-4.3-.72-8.03-2.97-11.33ZM8.2 14.42c-1 0-1.82-.91-1.82-2.02 0-1.12.8-2.03 1.82-2.03 1.03 0 1.84.92 1.82 2.03 0 1.11-.8 2.02-1.82 2.02Zm7.6 0c-1 0-1.82-.91-1.82-2.02 0-1.12.8-2.03 1.82-2.03 1.03 0 1.84.92 1.82 2.03 0 1.11-.79 2.02-1.82 2.02Z"
+        />
+      </svg>
+
+      <span>DISCORD</span>
+    </button>
+  </div>
+
+  <div className="register-divider">
+    <span>OR CREATE ACCOUNT</span>
+  </div>
+</div>
               <form
                 className="register-form"
                 onSubmit={handleSubmit}
@@ -216,11 +303,6 @@ export default function RegisterPage() {
                       : "PAY $5 & ENTER"}
                   </span>
 
-                  <span className="register-submit-sub">
-                    {isPaying
-                      ? "OPENING THE GATE"
-                      : "365 DAYS. ONE CLICK PER DAY."}
-                  </span>
                 </button>
               </form>
 
