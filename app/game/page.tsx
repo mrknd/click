@@ -15,6 +15,8 @@ export default function GamePage() {
   const [lastClick, setLastClick] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isCasting, setIsCasting] = useState(false);
+  const [visibleRings, setVisibleRings] = useState(0);
 
   useEffect(() => {
     const now = Date.now();
@@ -69,10 +71,13 @@ export default function GamePage() {
   }, []);
 
   function handlePress() {
-    if (clickedToday) {
-      return;
-    }
+  if (clickedToday || isCasting) {
+    return;
+  }
 
+  setIsCasting(true);
+
+  window.setTimeout(() => {
     const clickedAt = Date.now();
 
     localStorage.setItem(
@@ -83,7 +88,15 @@ export default function GamePage() {
     setLastClick(clickedAt);
     setCurrentTime(clickedAt);
     setClickedToday(true);
-  }
+    setVisibleRings((current) =>
+      Math.min(current + 1, 365),
+    );
+  }, 1200);
+
+  window.setTimeout(() => {
+    setIsCasting(false);
+  }, 2200);
+}
 
   const timeLeft = currentTime
     ? getTimeUntilUtcReset(currentTime)
@@ -232,7 +245,7 @@ export default function GamePage() {
   />
 
   <img
-  src="/game/1.jpg"
+  src="/game/1.gif"
   alt="Knight animation"
   className="knight-image"
 />
