@@ -232,7 +232,7 @@ export default function GamePage() {
   />
 
   <img
-  src="/game/knight-idle1.gif"
+  src="/game/1.jpg"
   alt="Knight animation"
   className="knight-image"
 />
