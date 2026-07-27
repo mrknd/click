@@ -156,10 +156,7 @@ export default function GamePage() {
                 {formatCompactMoney(prizePool)}
               </p>
             </div>
-            <p className="pool-caption">
-  ALL 365-DAY SURVIVORS SPLIT THE POOL
-</p>
-
+            
  
 
             <div className="pool-stats">
