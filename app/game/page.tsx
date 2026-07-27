@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 const TOTAL_PLAYERS = 10_000;
 const ALIVE_PLAYERS = 10_000;
 const ENTRY_FEE = 5;
-const WINNERS_COUNT = 50;
+
+const GAME_DURATION_DAYS = 365;
+const CURRENT_GAME_DAY = 1;
 
 export default function GamePage() {
   const [username, setUsername] = useState("GUEST");
@@ -100,6 +102,11 @@ export default function GamePage() {
   const prizePool =
     TOTAL_PLAYERS * ENTRY_FEE;
 
+  const prizePerSurvivor =
+  ALIVE_PLAYERS > 0
+    ? prizePool / ALIVE_PLAYERS
+    : 0;
+
   if (!mounted) {
     return (
       <main className="game-loading">
@@ -136,50 +143,68 @@ export default function GamePage() {
                 {formatCompactMoney(prizePool)}
               </p>
             </div>
+            <p className="pool-caption">
+  ALL 365-DAY SURVIVORS SPLIT THE POOL
+</p>
 
  
 
-            <div className="players-row">
-              <div className="player-counter player-counter-alive">
-                <p className="counter-label">
-                  ALIVE
-                </p>
+            <div className="pool-stats">
+  <div className="pool-stat">
+    <img
+      src="/game/coin.png"
+      alt=""
+      aria-hidden="true"
+      width={32}
+      height={32}
+      className="pool-stat-icon"
+    />
 
-                <div className="counter-value-row">
-                  <span
-                    aria-hidden="true"
-                    className="alive-icon"
-                  >
-                    ♟
-                  </span>
+    <span className="pool-stat-value">
+      ${formatCompactMoney(prizePerSurvivor)}
+    </span>
 
-                  <span className="counter-value">
-                    {ALIVE_PLAYERS.toLocaleString("en-US")}
-                  </span>
-                </div>
-              </div>
+    <span className="pool-stat-label">
+      PER SURVIVOR
+    </span>
+  </div>
 
-              <div className="player-counter player-counter-dead">
-                <p className="counter-label">
-                  DEAD
-                </p>
+  <div className="pool-stat">
+    <span
+      aria-hidden="true"
+      className="pool-stat-alive-icon"
+    >
+      ♟
+    </span>
 
-                <div className="counter-value-row">
-                  <img
-                    src="/game/skull.png"
-                    alt=""
-                    aria-hidden="true"
-                    width={48}
-                    height={48}
-                    className="dead-icon"
-                  />
+    <span className="pool-stat-value pool-stat-value-alive">
+      {ALIVE_PLAYERS.toLocaleString("en-US")}
+    </span>
 
-                  <span className="counter-value">
-                    {eliminatedPlayers.toLocaleString("en-US")}
-                  </span>
-                </div>
-              </div>
-            </div>
+    <span className="pool-stat-label">
+      ALIVE
+    </span>
+  </div>
+
+  <div className="pool-stat">
+    <img
+      src="/game/skull.png"
+      alt=""
+      aria-hidden="true"
+      width={32}
+      height={32}
+      className="pool-stat-icon"
+    />
+
+    <span className="pool-stat-value pool-stat-value-dead">
+      {eliminatedPlayers.toLocaleString("en-US")}
+    </span>
+
+    <span className="pool-stat-label">
+      DEAD
+    </span>
+  </div>
+</div>
           </section>
 
           <section className="game-world">
@@ -189,9 +214,12 @@ export default function GamePage() {
             />
 
             <p className="player-name">
-              PLAYER: {username.toUpperCase()}
-            </p>
+  PLAYER: {username.toUpperCase()}
+</p>
 
+<p className="game-day">
+  DAY {CURRENT_GAME_DAY} / {GAME_DURATION_DAYS}
+</p>
            <div className="knight-stage">
   <div
     aria-hidden="true"
@@ -221,10 +249,10 @@ export default function GamePage() {
               }
             >
               <span className="survive-main">
-                {clickedToday
-                  ? "CLICK SAVED"
-                  : "PRESS TO SURVIVE"}
-              </span>
+  {clickedToday
+    ? "DAY COMPLETE"
+    : "CLICK TO SURVIVE"}
+</span>
 
               {!clickedToday && (
   <span
@@ -235,10 +263,10 @@ export default function GamePage() {
 )}
 
               <span className="survive-sub">
-                {clickedToday
-                  ? "RETURN AFTER UTC RESET"
-                  : "ONE CLICK REMAINS"}
-              </span>
+  {clickedToday
+    ? "RETURN NEXT UTC DAY"
+    : `DAY ${CURRENT_GAME_DAY} OF ${GAME_DURATION_DAYS}`}
+</span>
             </button>
 
             <div className="timer-panel">
@@ -281,8 +309,8 @@ export default function GamePage() {
                   }
                 >
                   {clickedToday
-                    ? "SAFE TODAY"
-                    : "ACTION REQUIRED"}
+  ? "SAFE TODAY"
+  : "DAILY CLICK REQUIRED"}
                 </strong>
               </div>
 
