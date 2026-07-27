@@ -159,14 +159,14 @@ export default function GamePage() {
       height={32}
       className="pool-stat-icon"
     />
-
+    <span className="pool-stat-label">
+      REWARD
+    </span>
     <span className="pool-stat-value">
       ${formatCompactMoney(prizePerSurvivor)}
     </span>
 
-    <span className="pool-stat-label">
-      PER SURVIVOR
-    </span>
+
   </div>
 
   <div className="pool-stat">
@@ -176,14 +176,14 @@ export default function GamePage() {
     >
       ♟
     </span>
-
+    <span className="pool-stat-label">
+      ALIVE
+    </span>
     <span className="pool-stat-value pool-stat-value-alive">
       {ALIVE_PLAYERS.toLocaleString("en-US")}
     </span>
 
-    <span className="pool-stat-label">
-      ALIVE
-    </span>
+
   </div>
 
   <div className="pool-stat">
@@ -195,14 +195,14 @@ export default function GamePage() {
       height={32}
       className="pool-stat-icon"
     />
-
+    <span className="pool-stat-label">
+      DEAD
+    </span>
     <span className="pool-stat-value pool-stat-value-dead">
       {eliminatedPlayers.toLocaleString("en-US")}
     </span>
 
-    <span className="pool-stat-label">
-      DEAD
-    </span>
+
   </div>
 </div>
           </section>
