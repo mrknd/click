@@ -212,7 +212,7 @@ input {
 .player-name {
   position: relative;
   z-index: 2;
-  margin: 0;
+  margin: 0 0 4px;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.42);
   font-size: clamp(5px, 1vh, 9px);
@@ -496,7 +496,7 @@ input {
   margin: 5px 0 0;
   color: #ffe600;
   font-size: clamp(7px, 1vh, 9px);
-  line-height: 1.2;
+  /* line-height: 1.2; */
   text-align: center;
   letter-spacing: 0.08em;
 }
@@ -655,8 +655,8 @@ input {
   align-items: center;
   justify-content: center;
   overflow-x: hidden;
-  background: #18352f;
-  padding: 10px;
+  background: #17191b;
+  padding: 8px;
 }
 
 .register-cabinet {
