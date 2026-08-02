@@ -242,7 +242,7 @@ export default function GamePage() {
   />
 
   <img
-  src="/game/zx.jpg"
+  src="/game/mag.gif"
   alt="Knight animation"
   className="knight-image"
 />
