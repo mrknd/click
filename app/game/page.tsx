@@ -305,7 +305,7 @@ export default function GamePage() {
               </div>
             </div>
 
-            <div className="status-row">
+            {/* <div className="status-row">
               <div>
                 <span className="status-label">
                   STATUS
@@ -336,7 +336,7 @@ export default function GamePage() {
                   )}
                 </strong>
               </div>
-            </div>
+            </div> */}
           </section>
         </div>
       </div>
